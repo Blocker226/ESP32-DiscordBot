@@ -1,0 +1,34 @@
+{
+    "name": "ESP32-DiscordBot",
+    "version": "0.1.0",
+    "description": "An Arduino-based Discord Bot framework for the ESP32 MCU.",
+    "keywords": "communication, discord, bot, web",
+    "authors": {
+        "name": "Neo Ting Wei Terrence",
+        "url": "https://github.com/Blocker226/",
+        "maintainer": true
+    },
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "license": "GPL-3.0-or-later",
+    "frameworks": "arduino",
+    "platforms": "espressif32",
+    "headers": ["discord.h", "interactions.h"],
+    "examples": [
+        {
+        "name": "Hello",
+        "base": "examples/hello",
+        "files": ["hello.cpp"]
+        }
+    ],
+    "dependencies": {
+        "a7md0/WakeOnLan": "^1.1.7",
+        "bblanchon/ArduinoJson": "^6.21.2",
+        "links2004/WebSockets": "^2.4.1"
+    },
+    "export": {
+        "exclude": ["test/*", "main.cpp"]
+    }
+}

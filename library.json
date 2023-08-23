@@ -10,7 +10,7 @@
     },
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/Blocker226/ESP32-DiscordBot"
     },
     "license": "GPL-3.0-or-later",
     "frameworks": "arduino",

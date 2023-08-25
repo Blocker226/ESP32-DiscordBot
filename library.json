@@ -1,7 +1,7 @@
 {
     "name": "ESP32-DiscordBot",
     "version": "0.1.0",
-    "description": "An Arduino-based Discord Bot framework for the ESP32 MCU.",
+    "description": "An Arduino-based Discord Bot framework for the ESP32 MCU. ",
     "keywords": "communication, discord, bot, web",
     "authors": {
         "name": "Neo Ting Wei Terrence",
@@ -29,6 +29,6 @@
         "links2004/WebSockets": "^2.4.1"
     },
     "export": {
-        "exclude": ["test/*", "main.cpp"]
+        "exclude": ["test/*", "src/main.cpp"]
     }
 }

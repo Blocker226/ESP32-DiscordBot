@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+// Basic bot program with a simple "/hello" command that prints "Hello World!"
+
 #include <Arduino.h>
 #include <Wifi.h>
 
@@ -43,7 +45,6 @@ void on_discord_event(Discord::EventType type, const Discord::Event& data) {
     cmd.description = "Ping the bot for a greeting.";
     cmd.default_member_permissions = 2147483648; //Use Application Commands
 
-    //[STACK CHANGE] Loop() - Free Stack Space: 6604 (-4672)
     uint64_t id = Discord::Interactions::registerGlobalCommand(discord, cmd, BOT_TOKEN);
     if (id == 0) {
         Serial.println("Command registration failed!");
@@ -81,12 +82,16 @@ void setup() {
     }
     Serial.println("\nWiFi connected. Connecting to Discord...");
 
+    // Login with the provided bot token and no additional intent requirements.
     discord.login(BOT_TOKEN);
+    // Optional: Set the interaction handling callback.
     discord.onInteraction(on_discord_interaction);
+    // Optional: Set the event handling callback.
     discord.onEvent(on_discord_event);
 }
 
 // put your main code here, to run repeatedly:
 void loop() {
+    // This needs to run even when the bot isn't connected.
     discord.update(millis());
 }

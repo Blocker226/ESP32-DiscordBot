@@ -59,6 +59,10 @@ namespace Discord {
         _lastHeartbeatSend = 0;
     }
 
+    void Bot::update() {
+        update(millis());
+    }
+
     void Bot::update(unsigned long now) {
         _now = now;
 

@@ -169,8 +169,13 @@ namespace Discord {
 
         Bot(bool rateLimit = true);
 
+        /// @brief Connect to the Discord Gateway and login with the provided credentials.
+        /// @param botToken The bot token obtained from the Discord Developer Portal.
+        /// @param intents The intents the bot needs to operate.
         void login(const char* botToken, unsigned int intents = 0);
 
+        void update();
+        
         void update(unsigned long now);
 
         void logout();

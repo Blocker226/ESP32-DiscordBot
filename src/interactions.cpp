@@ -38,7 +38,7 @@ namespace Discord {
         json.reserve(1024);
         serializeJson(doc, json);
         StaticJsonDocument<512> response;
-        if (sendRest<512>(bot._https, "POST", url, json, botToken, &response)) {
+        if (bot.sendRest<512>("POST", url, json, botToken, &response)) {
             uint64_t idString = response["id"];
 
             Serial.print(DISCORD_INTERACTION_LOG_PREFIX "Global command ");
@@ -64,7 +64,7 @@ namespace Discord {
         json.reserve(1024);
         serializeJson(doc, json);
         StaticJsonDocument<512> response;
-        if (sendRest<512>(bot._https, "POST", url, json, botToken, &response)) {
+        if (bot.sendRest<512>("POST", url, json, botToken, &response)) {
             uint64_t idString = response["id"];
 
             Serial.print(DISCORD_INTERACTION_LOG_PREFIX " Guild command ");
@@ -81,7 +81,7 @@ namespace Discord {
         url += "/commands/";
         url += commandId;
 
-        bool result = sendRest(bot._https, "DELETE", url, "", botToken);
+        bool result = bot.sendRest("DELETE", url, "", botToken);
         return result;
     }
 
@@ -94,7 +94,7 @@ namespace Discord {
         url += "/commands/";
         url += commandId;
 
-        bool result = sendRest(bot._https, "DELETE", url, "", botToken);
+        bool result = bot.sendRest("DELETE", url, "", botToken);
         return result;
     }
 

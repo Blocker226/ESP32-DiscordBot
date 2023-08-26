@@ -31,7 +31,7 @@ namespace Discord {
         //Establish a connection with the Gateway after fetching and caching a WSS URL using the Get Gateway endpoint.
         if (_gatewayURL.isEmpty()) {
             StaticJsonDocument<64> doc;
-            if (sendRest<64>(_https, "GET", DISCORD_API_URI "/gateway", "", "", &doc)) {
+            if (sendRest<64>("GET", DISCORD_API_URI "/gateway", "", "", &doc)) {
                 _gatewayURL = doc["url"].as<const char*>() + 6; // Remove the 'wss://' prefix
                 Serial.print(DISCORD_LOG_PREFIX "Gateway URL set to ");
                 Serial.println(_gatewayURL);
@@ -140,7 +140,7 @@ namespace Discord {
         json.reserve(512);
         serializeJson(response, json);
         Serial.println(json);
-        sendPostAsync<256>(_https, "POST", std::move(url), json, _botToken,
+        sendPostAsync<256>("POST", std::move(url), json, _botToken,
 #ifdef _DISCORD_CLIENT_DEBUG
             [start](const StaticJsonDocument<256>& response) {
 #else
@@ -490,7 +490,7 @@ namespace Discord {
         if (!sendWS(payload.c_str(), payload.length())) return;
         // Send a periodic request to Discord to preserve the TCP connection.
         _httpsMtx.lock();
-        sendRest(_https, "GET", DISCORD_API_URI "/gateway");
+        sendRest("GET", DISCORD_API_URI "/gateway");
         _httpsMtx.unlock();
 
         _lastHeartbeatSend = _now;
@@ -545,25 +545,25 @@ namespace Discord {
         return false;
     }
 
-    bool sendRest(HTTPClient & client, const char* method, const String & uri, const String & json, const char* authorisationToken) {
-        client.setURL(uri);
+    bool Bot::sendRest(const char* method, const String & uri, const String & json, const char* authorisationToken) {
+        _https.setURL(uri);
 
         if (strcmp(method, "GET") != 0) {
-            client.addHeader("Content-Type", "application/json");
+            _https.addHeader("Content-Type", "application/json");
             if (strlen(authorisationToken) > 0) {
                 String headerTok = "Bot ";
                 headerTok += authorisationToken;
-                client.addHeader("Authorization", headerTok);
+                _https.addHeader("Authorization", headerTok);
             }
         }
 
         int httpResponseCode = 0;
         if (!json.isEmpty()) {
-            httpResponseCode = client.sendRequest(method, json);
+            httpResponseCode = _https.sendRequest(method, json);
 
         }
         else {
-            httpResponseCode = client.sendRequest(method);
+            httpResponseCode = _https.sendRequest(method);
         }
 #ifdef _DISCORD_CLIENT_DEBUG
 #ifdef ESP32
@@ -595,9 +595,9 @@ namespace Discord {
             if (httpResponseCode != HTTP_CODE_NO_CONTENT) { //204 no content
 #ifdef _DISCORD_CLIENT_DEBUG
 #ifdef ESP32
-                log_d("%s", client.getString().c_str());
+                log_d("%s", _https.getString().c_str());
 #else
-                Serial.println(client.getString());
+                Serial.println(_https.getString());
 #endif
 #endif
             }

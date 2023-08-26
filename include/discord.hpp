@@ -23,33 +23,32 @@
 
 namespace Discord {
     template<size_t sz>
-    inline bool sendRest(
-        HTTPClient& client,
+    inline bool Bot::sendRest(
         const char* method,
         const String& uri,
         const String& json,
         const char* authorisationToken,
         StaticJsonDocument<sz>* responseDoc) {
 
-        client.setURL(uri);
+        _https.setURL(uri);
 
         if (strcmp(method, "GET") != 0) {
-            client.addHeader("Content-Type", "application/json");
+            _https.addHeader("Content-Type", "application/json");
             if (strlen(authorisationToken) > 0) {
                 String headerTok = "Bot ";
                 headerTok += authorisationToken;
-                client.addHeader("Authorization", headerTok);
+                _https.addHeader("Authorization", headerTok);
             }
         }
 
         Serial.println("SEnD REQUEST");
         int httpResponseCode = 0;
         if (!json.isEmpty()) {
-            httpResponseCode = client.sendRequest(method, json);
+            httpResponseCode = _https.sendRequest(method, json);
 
         }
         else {
-            httpResponseCode = client.sendRequest(method);
+            httpResponseCode = _https.sendRequest(method);
         }
 #ifdef _DISCORD_CLIENT_DEBUG
 #ifdef ESP32
@@ -80,23 +79,23 @@ namespace Discord {
                     // Here we pass getString instead of getStream. While ArduinoJson recommends against this,
                     // this allows us to keep the benefits of HTTP 1.1+, since Discord's payloads are usually small.
 #ifdef _DISCORD_CLIENT_DEBUG
-                    String p = client.getString();
+                    String p = _https.getString();
                     DeserializationError e = deserializeJson(*responseDoc, p);
                     Serial.println(p);
 #else
-                    DeserializationError e = deserializeJson(*responseDoc, client.getString());
+                    DeserializationError e = deserializeJson(*responseDoc, _https.getString());
 #endif
                     if (e) {
                         Serial.print(F("deserializeJson() failed with code "));
                         Serial.println(e.f_str());
 
                         // Serialisation failed, free resources
-                        //client.end();
+                        //_https.end();
                         return false;
                     }
                 }
                 else {
-                    Serial.println(client.getString());
+                    Serial.println(_https.getString());
                 }
             }
             return true;
@@ -127,7 +126,6 @@ namespace Discord {
 
     template<size_t sz>
     void Bot::sendPostAsync(
-        HTTPClient& httpClient,
         const char* method,
         const String& uri,
         const String& json,
@@ -136,7 +134,7 @@ namespace Discord {
         std::mutex* mtx) {
 
         AsyncAPIRequest<sz>* request = new AsyncAPIRequest<sz>(
-            httpClient, method, uri, json, authorisationToken, std::move(cb), mtx);
+            _https, method, uri, json, authorisationToken, std::move(cb), mtx);
 
         TaskHandle_t task = nullptr;
         // Task priority of 2 will ensure the post request gets sent first within the 3s window.

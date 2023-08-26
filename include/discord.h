@@ -132,14 +132,18 @@ namespace Discord {
         //     const char* guildLocale = "";
         // };
 
-        typedef std::function<void(EventType type, const Event& json)> EventCallback;
+        typedef std::function<void(EventType type, const Event& event)> EventCallback;
         typedef std::function<void(const char* name, const JsonObject& interaction)> InteractionCallback;
         //typedef std::function<void(const char* name, const Interaction& interaction)> InteractionCallback;
 
         struct AllowedMentions {
+            // Controls user mentions
             bool parseUsers = false;
+            // Controls role mentions
             bool parseRoles = false;
+            // Controls @everyone and @here mentions
             bool parseEveryone = false;
+            // For replies, whether to mention the author of the message being replied to
             bool repliedUser = false;
 
             //TODO: List of users/roles
@@ -148,7 +152,9 @@ namespace Discord {
         struct MessageResponse {
             enum class Flags : char {
                 NONE = 0,
+                // Do not include any embeds when serializing this message
                 SUPPRESS_EMBEDS = 1 << 2,
+                // This message is only visible to the user who invoked the Interaction
                 EPHEMERAL = 1 << 6,
             };
 
@@ -174,12 +180,21 @@ namespace Discord {
         /// @param intents The intents the bot needs to operate.
         void login(const char* botToken, unsigned int intents = 0);
 
+        /// @brief Runs state checks and event polls for the bot. This should be called even if the bot is offline.
         void update();
-        
+
+        /// @brief Runs state checks and event polls for the bot. This should be called even if the bot is offline.
+        /// This version of the function allows you to pass a custom time value in ms.
         void update(unsigned long now);
 
+        /// @brief Closes the Discord Gateway connection and logs out the bot.
         void logout();
 
+        /// @brief Sets the callback function for handling interactions. 
+        /// Discord's 3-second window to reply means this function is called immediately from within the stack, so 
+        /// avoid heavy function calls.
+        /// @param cb The callback function to use.
+        /// Should have the following signature: void myFunctionName(EventType type, const Event& event)
         void onEvent(const EventCallback& cb);
 
         /// @brief Sets the callback function for handling interactions. 
@@ -236,9 +251,22 @@ namespace Discord {
 
         bool sendWS(const char* payload, size_t length);
 
+        bool sendRest(
+            const char* method,
+            const String& uri,
+            const String& json = "",
+            const char* authorisationToken = "");
+        
+        template <size_t sz>
+        bool sendRest(
+            const char* method,
+            const String& uri,
+            const String& json = "",
+            const char* authorisationToken = "",
+            StaticJsonDocument<sz>* responseDoc = nullptr);
+        
         template <size_t sz>
         void sendPostAsync(
-            HTTPClient& httpClient,
             const char* method,
             const String& uri,
             const String& json,
@@ -294,22 +322,6 @@ namespace Discord {
     inline Bot::MessageResponse::Flags operator | (Bot::MessageResponse::Flags lhs, Bot::MessageResponse::Flags rhs) {
         return static_cast<Bot::MessageResponse::Flags>(static_cast<int>(lhs) | static_cast<int>(rhs));
     }
-
-    bool sendRest(
-        HTTPClient& client,
-        const char* method,
-        const String& uri,
-        const String& json = "",
-        const char* authorisationToken = "");
-
-    template <size_t sz>
-    bool sendRest(
-        HTTPClient& client,
-        const char* method,
-        const String& uri,
-        const String& json = "",
-        const char* authorisationToken = "",
-        StaticJsonDocument<sz>* responseDoc = nullptr);
 }
 
 #include <discord.hpp>
